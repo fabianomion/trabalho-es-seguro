@@ -291,3 +291,53 @@ Ordem de prioridade (do mais urgente ao menos urgente), considerando pontuação
 8. **R03, R06, R10, R12, R13** (Médio, 6) — tratados em seguida, pois representam prejuízo financeiro ou reputacional limitado a eventos isolados, com menor probabilidade de exploração.
 9. **R04** (Médio, 4) — menor pontuação entre os riscos médios; impacto moderado e de fácil identificação/correção.
 
+# 14. Tratamento dos riscos
+
+## 14.1 Estratégias de tratamento por risco
+
+| ID | Estratégia | Justificativa |
+|---|---|---|
+| R01 | Reduzir | Não é possível eliminar contas de usuário (atividade essencial); a probabilidade e o impacto podem ser reduzidos com MFA e monitoramento |
+| R02 | Reduzir | O cadastro de entregadores é necessário ao negócio; deve-se reduzir a probabilidade com verificação de identidade mais robusta |
+| R03 | Reduzir | Corrigível por validação server-side; risco técnico plenamente mitigável |
+| R04 | Aceitar | Impacto moderado e detectável por auditoria de rotas; custo de mitigação total (ex.: hardware anti-spoofing) não se justifica neste estágio. Aceito pela equipe de operações, condicionado a monitoramento de rotas incoerentes, com revisão em 6 meses |
+| R05 | Reduzir | Passível de mitigação técnica (evidências de entrega) sem eliminar a funcionalidade de reembolso |
+| R06 | Reduzir | Resolvido com implementação de trilha de auditoria, sem necessidade de eliminar o acesso administrativo |
+| R07 | Reduzir | Corrigível por controle de autorização adequado (checagem de propriedade do recurso) |
+| R08 | Reduzir | Mesma lógica do R07, aplicada à API de rastreamento |
+| R09 | Reduzir | Mitigável com rate limiting, cache e auto scaling, sem necessidade de eliminar o serviço |
+| R10 | Compartilhar | Parte da responsabilidade de disponibilidade e antifraude é transferida ao provedor do gateway de pagamento (SLA e mecanismos antifraude do parceiro) |
+| R11 | Reduzir | Corrigível por autorização obrigatória no backend (nunca apenas na interface) |
+| R12 | Reduzir | Corrigível por isolamento lógico de dados entre estabelecimentos (multi-tenancy) |
+| R13 | Reduzir | Mitigável exigindo vínculo com pedido real para avaliação e moderação automatizada |
+
+## 14.2 Funções do NIST CSF 2.0
+
+| Função | Finalidade |
+|---|---|
+| Govern | Definir políticas, responsabilidades, prioridades e critérios de decisão |
+| Identify | Conhecer ativos, dependências, vulnerabilidades e riscos |
+| Protect | Implementar salvaguardas para reduzir probabilidade ou impacto |
+| Detect | Identificar eventos suspeitos, falhas e possíveis incidentes |
+| Respond | Conter, analisar, comunicar e tratar incidentes |
+| Recover | Restaurar serviços e dados, reduzindo prejuízos |
+
+## 14.3 Mapeamento dos riscos para o NIST CSF
+
+| Risco | Govern | Identify | Protect | Detect | Respond | Recover |
+|---|---|---|---|---|---|---|
+| R01 |  | X | X | X | X | X |
+| R02 | X | X | X |  | X |  |
+| R03 |  | X | X | X |  |  |
+| R04 | X | X |  | X |  |  |
+| R05 | X |  | X | X | X |  |
+| R06 | X |  | X | X | X |  |
+| R07 |  | X | X | X | X | X |
+| R08 |  | X | X | X | X |  |
+| R09 |  | X | X | X | X | X |
+| R10 | X | X | X |  |  | X |
+| R11 | X | X | X | X | X | X |
+| R12 |  | X | X |  |  |  |
+| R13 | X |  | X | X | X |  |
+
+*Justificativa geral:* nem todos os riscos envolvem todas as funções — por exemplo, R12 (isolamento entre estabelecimentos) é tratado principalmente com controles preventivos (Identify/Protect), sem necessidade forte de Recover, pois não há indisponibilidade nem perda de dados associada. Já R01, R07, R09 e R11 envolvem o ciclo completo por afetarem disponibilidade, integridade e confidencialidade de forma ampla, exigindo resposta e recuperação estruturadas.
