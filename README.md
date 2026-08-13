@@ -374,3 +374,41 @@ Ordem de prioridade (do mais urgente ao menos urgente), considerando pontuação
 10. **R04 (aceito, com monitoramento)** — não exige implementação de controle preventivo nesta fase, apenas configuração do monitoramento de rotas.
 
 Essa ordem prioriza primeiro os riscos críticos e as causas raiz compartilhadas por múltiplos riscos (ex.: autorização no backend), o que reduz simultaneamente vários itens da lista com um esforço de desenvolvimento concentrado.
+
+## 14.6 Estimativa do risco residual
+
+| Risco | Nível inicial | Nível residual esperado | Condição para aceitar o residual |
+|---|---|---|---|
+| R01 | Crítico (12) | Baixo (2–3) | MFA implementado e testado; bloqueio de tentativas validado em ambiente de produção |
+| R02 | Alto (8) | Médio (4) | Verificação documental integrada e auditoria de amostragem funcionando |
+| R03 | Médio (6) | Baixo (2) | Revalidação server-side implantada e testada contra tentativas de adulteração |
+| R04 | Médio (4) | Médio (4) | Mantido, pois a estratégia é aceitação; reavaliar em 6 meses ou se a frequência de incidentes aumentar |
+| R05 | Alto (8) | Médio (4) | Exigência de evidência de entrega ativa e taxa de reembolso monitorada |
+| R06 | Médio (6) | Baixo (2) | Log de auditoria implementado e revisado periodicamente |
+| R07 | Alto (8) | Baixo (2–3) | Controle de autorização por recurso testado em todos os endpoints críticos |
+| R08 | Alto (8) | Baixo (2–3) | Mesma validação aplicada à API de rastreamento, com expiração de token confirmada |
+| R09 | Alto (9) | Médio (4) | Rate limiting e auto scaling validados em teste de carga real |
+| R10 | Médio (6) | Médio (4) | SLA do gateway revisado e limite de tentativas implementado |
+| R11 | Alto (8) | Baixo (2) | Autorização obrigatória no backend testada e sem bypass possível pela interface |
+| R12 | Médio (6) | Baixo (2) | Isolamento por tenant_id validado em todos os endpoints de restaurante |
+| R13 | Médio (6) | Médio (4) | Moderação ativa e vínculo obrigatório com pedido implementado |
+
+# 15. Considerações finais (Etapa 2)
+
+**Riscos mais importantes:** R01 (comprometimento de conta), R09 (indisponibilidade em pico) e R08 (exposição de localização) foram considerados os mais importantes, pois combinam alta probabilidade ou alto impacto com consequências que afetam diretamente a segurança, a privacidade ou a operação do negócio como um todo.
+
+**Razões da priorização:** a ordem seguiu principalmente a pontuação (probabilidade × impacto), mas foi ajustada considerando a gravidade irreversível de certos impactos (como risco físico em R08) e a existência de causas raiz compartilhadas entre riscos (falha de autorização no backend em R07, R08 e R11), o que permite tratar vários riscos com controles semelhantes.
+
+**Estratégias predominantes:** a estratégia de **redução** foi predominante, por ser aplicável à maioria dos riscos técnicos identificados sem exigir a eliminação de funcionalidades essenciais do negócio. O **compartilhamento** foi usado apenas para o risco relacionado ao gateway de pagamento (R10), e a **aceitação** foi usada de forma pontual e justificada para o risco de menor impacto (R04).
+
+**Funções do NIST mais relevantes:** *Protect* e *Identify* foram as funções mais recorrentes, refletindo o foco atual do projeto em prevenir falhas antes da implementação. *Detect* e *Respond* também aparecem com frequência, mostrando a necessidade de monitoramento contínuo já nas próximas etapas.
+
+**Controles considerados essenciais:** autenticação multifator, verificação de autorização por recurso no backend (para eliminar falhas do tipo IDOR) e revalidação server-side de valores financeiros foram considerados os controles mais essenciais, pois tratam as causas raiz de múltiplos riscos ao mesmo tempo.
+
+**Principais dificuldades:** a maior dificuldade foi evitar duplicidade entre riscos derivados de ameaças relacionadas (por exemplo, R07, R08 e R11 compartilham a mesma causa técnica, mas afetam ativos diferentes), exigindo cuidado para não tratá-los como um único risco nem inflar artificialmente a lista.
+
+**Limitações da avaliação:** os valores de probabilidade e impacto são estimativas qualitativas baseadas no raciocínio do grupo, sem dados históricos reais de incidentes do sistema (que ainda não está implementado), o que deverá ser refinado quando houver dados reais de uso.
+
+**Pontos a detalhar nas próximas etapas:** os requisitos de segurança específicos, o desenho técnico dos controles de autorização e MFA, e os testes de verificação prática (Etapas 3, 4 e 5) precisarão detalhar como cada controle proposto aqui será efetivamente implementado.
+
+---
