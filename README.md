@@ -462,3 +462,75 @@ flowchart TD
 | Introduzir uma camada de API Gateway com rate limiting antes do backend de pedidos | R09 | Centraliza o controle de tráfego excessivo em um único ponto, evitando que cada serviço precise implementar sua própria proteção contra sobrecarga |
 | Recalcular o valor do pedido inteiramente no servidor a partir do cardápio cadastrado, descartando qualquer valor total enviado pelo cliente | R03 | Impede que o cliente manipule o preço final do pedido, pois o servidor nunca confia em valores financeiros vindos do lado do cliente |
 
+
+# Etapa 4 — Código Seguro e Testes de Segurança
+
+## Prática 1 — Controle de autorização por recurso (evitar IDOR)
+
+**Risco e requisito relacionados:** R07/R08 — RS02.
+
+**Testes antes da implementação:**
+
+| Teste | Entrada ou ação | Resultado esperado |
+|---|---|---|
+| TS01 | Usuário autenticado tenta acessar `/pedidos/123`, sendo dono do pedido 123 | Acesso permitido, dados retornados normalmente |
+| TS02 | Mesmo usuário autenticado tenta acessar `/pedidos/456`, pertencente a outro cliente | Acesso negado (HTTP 403) e evento registrado em log |
+
+**Implementação (pseudocódigo):**
+```
+função obterPedido(pedido_id, usuario_autenticado):
+    pedido = banco.buscarPedido(pedido_id)
+
+    se pedido == nulo:
+        retornar erro_404
+
+    se pedido.cliente_id != usuario_autenticado.id
+       e usuario_autenticado.papel != "administrador":
+        registrarLog("tentativa_acesso_nao_autorizado", usuario_autenticado.id, pedido_id)
+        retornar erro_403
+
+    retornar pedido
+```
+
+**Resultado esperado:** apenas o dono do pedido (ou um administrador autorizado) consegue visualizar seus dados; qualquer outra tentativa é bloqueada e registrada.
+
+**Referência OWASP utilizada:** OWASP Cheat Sheet Series — *Authorization Cheat Sheet* (verificação de autorização em nível de objeto).
+
+---
+
+## Prática 2 — Armazenamento seguro de senhas e MFA
+
+**Risco e requisito relacionados:** R01 — RS01.
+
+**Testes antes da implementação:**
+
+| Teste | Entrada ou ação | Resultado esperado |
+|---|---|---|
+| TS03 | Usuário informa e-mail e senha corretos, mas não fornece o segundo fator (código MFA) | Login não é concluído; sistema solicita o segundo fator |
+| TS04 | Usuário informa e-mail, senha corretos e código MFA válido | Login concluído com sucesso e sessão criada |
+
+**Implementação (pseudocódigo):**
+```
+função autenticar(email, senha, codigo_mfa):
+    usuario = banco.buscarPorEmail(email)
+
+    se usuario == nulo ou não verificarHash(senha, usuario.senha_hash):
+        registrarLog("tentativa_login_invalida", email)
+        retornar erro_401
+
+    se não validarCodigoMFA(usuario.id, codigo_mfa):
+        registrarLog("mfa_invalido", usuario.id)
+        retornar erro_401_requer_mfa
+
+    sessao = criarSessao(usuario.id)
+    retornar sessao
+```
+
+*(As senhas são armazenadas com hash forte e salt — ex.: bcrypt/argon2 — e nunca em texto puro.)*
+
+**Resultado esperado:** login só é concluído quando senha e segundo fator são válidos; tentativas inválidas são registradas para possibilitar detecção de força bruta.
+
+**Referência OWASP utilizada:** OWASP Cheat Sheet Series — *Multifactor Authentication Cheat Sheet* e *Password Storage Cheat Sheet*.
+
+**Forma de realização:** implementação descrita em pseudocódigo, adequada para o estágio atual do projeto (sistema não implementado por completo), podendo ser convertida em código real nas próximas iterações.
+
