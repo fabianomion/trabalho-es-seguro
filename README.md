@@ -243,3 +243,51 @@ Todas as seis categorias do STRIDE puderam ser aplicadas ao sistema, uma vez que
 | 8–11 | Alto |
 | 12–16 | Crítico |
 
+## 13.4 Registro de riscos
+
+| ID | Origem STRIDE | Evento de risco | Vulnerabilidade ou condição | Prob. | Imp. | Pont. | Nível |
+|---|---|---|---|---|---|---|---|
+| R01 | Spoofing (T01) | Atacante acessa a conta de um cliente com credenciais vazadas e realiza pedidos/pagamentos em seu nome | Ausência de MFA e reuso de senha pelos usuários | 3 | 4 | 12 | Crítico |
+| R02 | Spoofing / Elevation of Privilege (T02, CA01) | Pessoa cria conta de entregador falsa e retira pedidos sem realizar a entrega | Verificação de identidade insuficiente no cadastro de entregadores | 2 | 4 | 8 | Alto |
+| R03 | Tampering (T03, CA02) | Valor do pedido é alterado antes do pagamento, gerando cobrança menor | Backend confia no valor enviado pelo cliente sem revalidação server-side | 2 | 3 | 6 | Médio |
+| R04 | Tampering (T04) | Localização/status de entrega é falsificado (GPS spoofing) | App do entregador não valida integridade dos dados de localização | 2 | 2 | 4 | Médio |
+| R05 | Repudiation (T05, CA05) | Cliente nega recebimento do pedido para obter reembolso indevido | Confirmação de entrega sem evidência forte (foto, geolocalização no momento) | 4 | 2 | 8 | Alto |
+| R06 | Repudiation (T06) | Administrador altera pedidos/reembolsos sem registro auditável | Ausência de log de auditoria para ações administrativas | 2 | 3 | 6 | Médio |
+| R07 | Information Disclosure (T07) | Falha de autorização expõe dados pessoais e histórico de outros usuários | Controle de acesso a registros (IDOR) mal implementado | 2 | 4 | 8 | Alto |
+| R08 | Information Disclosure (T08, CA04) | Localização em tempo real de cliente/entregador é exposta a terceiros não autorizados | API de rastreamento sem verificação de propriedade do pedido | 2 | 4 | 8 | Alto |
+| R09 | Denial of Service (T09) | API/backend fica indisponível por sobrecarga em horário de pico ou ataque DDoS | Ausência de rate limiting e de escalonamento automático | 3 | 3 | 9 | Alto |
+| R10 | Denial of Service (T10) | Gateway de pagamento é sobrecarregado por tentativas inválidas em massa | Ausência de limitação de tentativas de pagamento por conta/IP | 2 | 3 | 6 | Médio |
+| R11 | Elevation of Privilege (T11) | Usuário comum acessa funções administrativas por falha de autorização | Verificação de papel (role) feita apenas na interface, não no backend | 2 | 4 | 8 | Alto |
+| R12 | Elevation of Privilege (T12) | Restaurante acessa dados de pedidos/cardápio de concorrentes | Falha de isolamento de dados entre contas de estabelecimentos (multi-tenant) | 2 | 3 | 6 | Médio |
+| R13 | Repudiation / Spoofing (CA03) | Avaliações falsas manipulam a reputação de restaurantes | Avaliação não exige vínculo comprovado com pedido real; criação de contas pouco controlada | 3 | 2 | 6 | Médio |
+
+## 13.5 Justificativas
+
+- **R01 (Crítico):** probabilidade média-alta porque reuso de senha e phishing são práticas comuns entre usuários finais, e o app não exige MFA. Impacto muito alto porque a conta comprometida expõe dados pessoais, meios de pagamento e permite pedidos fraudulentos — afeta diretamente clientes e gera prejuízo financeiro e de confiança.
+- **R02 (Alto):** probabilidade média-baixa, pois depende de uma falha específica no processo de verificação documental. Impacto muito alto, pois há prejuízo financeiro direto e exposição do cliente a um agente não confiável durante uma interação física.
+- **R03 (Médio):** probabilidade média-baixa, pois exige conhecimento técnico para interceptar e alterar requisições. Impacto alto, pois gera prejuízo financeiro direto ao restaurante, mas limitado a um pedido por ocorrência.
+- **R04 (Médio):** probabilidade média-baixa, pois requer adulteração do app ou uso de ferramentas de GPS spoofing. Impacto moderado, pois normalmente é detectável e corrigível pela plataforma.
+- **R05 (Alto):** probabilidade alta, pois é uma ação simples que qualquer cliente pode realizar sem conhecimento técnico, sendo um padrão de fraude comum em apps de delivery. Impacto moderado, pois o prejuízo por evento é limitado ao valor do pedido, mas a recorrência aumenta o dano agregado.
+- **R06 (Médio):** probabilidade média-baixa, por depender de abuso interno de um usuário privilegiado (situação menos frequente). Impacto alto, pois compromete a rastreabilidade de fraudes internas.
+- **R07 (Alto):** probabilidade média-baixa, pois depende de uma falha específica de autorização (tipo IDOR). Impacto muito alto, pois pode expor dados pessoais de um grande número de usuários simultaneamente.
+- **R08 (Alto):** probabilidade média-baixa, semelhante ao R07, mas o impacto é muito alto por envolver risco à integridade física dos usuários, o que é considerado uma consequência muito grave mesmo com baixa frequência.
+- **R09 (Alto):** probabilidade média-alta, pois picos de uso (ex.: sexta à noite) são previsíveis e ataques de negação de serviço contra aplicações populares são comuns. Impacto alto, pois afeta simultaneamente todos os usuários e interrompe a operação do negócio.
+- **R10 (Médio):** probabilidade média-baixa, pois exige esforço direcionado especificamente à integração de pagamento. Impacto alto, pois impede a conclusão de vendas legítimas enquanto durar o ataque.
+- **R11 (Alto):** probabilidade média-baixa, pois requer exploração de uma falha de autorização no backend (não bastando manipular a interface). Impacto muito alto, pois compromete potencialmente toda a base de dados de usuários e transações.
+- **R12 (Médio):** probabilidade média-baixa, pois depende de falha de isolamento entre contas de estabelecimentos. Impacto alto, pois expõe informações comerciais sensíveis, mas não dados pessoais de consumidores.
+- **R13 (Médio):** probabilidade média-alta, pois a criação de contas falsas para avaliações é uma prática comum e de baixa barreira técnica. Impacto moderado, pois afeta a reputação e a confiança, mas é um dano reversível com moderação e auditoria.
+
+## 13.6 Priorização
+
+Ordem de prioridade (do mais urgente ao menos urgente), considerando pontuação, gravidade das consequências, quantidade de usuários afetados, importância do ativo, possibilidade de recuperação e dependências:
+
+1. **R01** (Crítico, 12) — maior pontuação; compromete simultaneamente dados pessoais, pagamento e integridade de pedidos; base para vários outros riscos (uma conta comprometida pode ser usada para explorar R05, por exemplo).
+2. **R09** (Alto, 9) — afeta a disponibilidade para todos os usuários ao mesmo tempo; é a segunda maior pontuação e tem consequência imediata para o negócio.
+3. **R08** (Alto, 8) — apesar da pontuação empatada com outros, é priorizado por envolver risco à segurança física dos usuários, consequência irreversível.
+4. **R07** (Alto, 8) — exposição de dados pessoais em massa, afeta muitos usuários simultaneamente e tem forte implicação legal/regulatória (LGPD).
+5. **R11** (Alto, 8) — comprometimento potencial de todo o sistema administrativo; embora exija maior capacidade técnica do atacante (menor probabilidade relativa), o dano é sistêmico.
+6. **R02** (Alto, 8) — prejuízo financeiro direto e exposição do cliente durante interação física com um agente não confiável.
+7. **R05** (Alto, 8) — embora o impacto por evento seja moderado, a alta probabilidade e recorrência tornam o prejuízo agregado significativo; fica atrás dos anteriores por ser financeiramente recuperável e não afetar dados sensíveis.
+8. **R03, R06, R10, R12, R13** (Médio, 6) — tratados em seguida, pois representam prejuízo financeiro ou reputacional limitado a eventos isolados, com menor probabilidade de exploração.
+9. **R04** (Médio, 4) — menor pontuação entre os riscos médios; impacto moderado e de fácil identificação/correção.
+
