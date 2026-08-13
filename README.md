@@ -211,3 +211,35 @@ Todas as seis categorias do STRIDE puderam ser aplicadas ao sistema, uma vez que
 **Categorias STRIDE relacionadas:** Repudiation.
 
 ---
+
+# Etapa 2 — Análise, Priorização e Tratamento de Riscos com o NIST CSF
+
+## 13.1 Critérios de probabilidade
+
+| Valor | Classificação | Critério |
+|---|---|---|
+| 1 | Baixa | Depende de condições incomuns, acesso muito específico ou alta capacidade técnica |
+| 2 | Média-baixa | Possível, mas depende de vulnerabilidade ou condição específica |
+| 3 | Média-alta | Plausível, pode ocorrer em situações comuns de uso ou ataque |
+| 4 | Alta | Pode ocorrer com facilidade, frequência ou em condições previsíveis |
+
+## 13.2 Critérios de impacto
+
+| Valor | Classificação | Critério |
+|---|---|---|
+| 1 | Baixo | Pequeno transtorno, corrigido rapidamente |
+| 2 | Moderado | Interrupção ou inconsistência limitada, recuperável |
+| 3 | Alto | Prejuízo relevante a usuários, negócio ou privacidade |
+| 4 | Muito alto | Afeta muitos usuários, compromete operações críticas ou gera prejuízo grave |
+
+## 13.3 Cálculo e classificação
+
+`Pontuação = Probabilidade × Impacto`
+
+| Pontuação | Nível |
+|---|---|
+| 1–3 | Baixo |
+| 4–7 | Médio |
+| 8–11 | Alto |
+| 12–16 | Crítico |
+
