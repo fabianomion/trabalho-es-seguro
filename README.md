@@ -412,3 +412,21 @@ Essa ordem prioriza primeiro os riscos críticos e as causas raiz compartilhadas
 **Pontos a detalhar nas próximas etapas:** os requisitos de segurança específicos, o desenho técnico dos controles de autorização e MFA, e os testes de verificação prática (Etapas 3, 4 e 5) precisarão detalhar como cada controle proposto aqui será efetivamente implementado.
 
 ---
+
+# Etapa 3 — Projeto de uma Arquitetura Segura
+
+## 18.1 Requisitos de segurança
+
+| ID | Risco de origem | Requisito de segurança | Critério de verificação |
+|---|---|---|---|
+| RS01 | R01 | O sistema deverá exigir um segundo fator de autenticação antes de confirmar login em novo dispositivo ou operação sensível (troca de senha, cadastro de cartão) | A operação deverá ser recusada quando o segundo fator não for validado corretamente |
+| RS02 | R07 / R08 | O backend deverá verificar, em todo endpoint que retorna dados pessoais ou de localização, se o usuário autenticado é o proprietário do recurso solicitado | Uma requisição para o recurso de outro usuário deverá retornar erro de autorização (HTTP 403), mesmo com token válido |
+| RS03 | R11 | Toda rota administrativa deverá validar o papel (role) do usuário no backend, independentemente do que é exibido na interface | Uma requisição direta à rota administrativa por um usuário sem papel de administrador deverá ser recusada e registrada em log |
+
+## 18.2 Vulnerabilidades catalogadas
+
+| Risco | Vulnerabilidade ou categoria | Referência utilizada | Relação com o sistema |
+|---|---|---|---|
+| R01 | Falha de autenticação e gerenciamento de sessão | OWASP Top 10 (A07:2021 – Identification and Authentication Failures) | Permite que um atacante com credenciais vazadas assuma o controle da conta de outro usuário |
+| R07 / R08 | Referência insegura direta a objeto (IDOR) | CWE-639 (Authorization Bypass Through User-Controlled Key) | Permite acessar dados pessoais ou de localização de outros usuários apenas manipulando um identificador na requisição |
+| R11 | Controle de acesso quebrado (Broken Access Control) | OWASP Top 10 (A01:2021 – Broken Access Control) | Permite que um usuário comum execute funções administrativas caso a verificação de papel exista apenas na interface |
