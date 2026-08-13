@@ -116,3 +116,98 @@ Fluxo simplificado, representado em texto:
 Todas as seis categorias do STRIDE puderam ser aplicadas ao sistema, uma vez que ele possui múltiplos usuários, comunicação em rede, transações financeiras e dados sensíveis, o que caracteriza superfícies de ataque relevantes para cada categoria.
 
 ---
+## 8.6 Casos de abuso
+
+### CA01 — Conta falsa de entregador para roubo de pedidos
+**Ator:** usuário mal-intencionado.
+
+**Objetivo:** obter acesso a pedidos pagos para se apropriar dos produtos sem realizar a entrega.
+
+**Condições:** o sistema permite cadastro de entregadores com verificação de identidade insuficiente (ex.: apenas foto de documento, sem validação cruzada).
+
+**Fluxo de abuso:**
+1. O atacante cria uma conta de entregador usando documento falso ou de terceiro.
+2. O sistema aprova o cadastro sem validação adicional.
+3. O atacante aceita pedidos legítimos atribuídos pela plataforma.
+4. O atacante retira o pedido no restaurante e não realiza a entrega, desaparecendo com o produto.
+
+**Impacto:** prejuízo financeiro ao cliente e ao restaurante, dano à reputação da plataforma, possível reincidência com múltiplas vítimas.
+
+**Categorias STRIDE relacionadas:** Spoofing, Elevation of Privilege.
+
+---
+
+### CA02 — Manipulação do valor do pedido antes do pagamento
+**Ator:** usuário cliente mal-intencionado com conhecimento técnico.
+
+**Objetivo:** pagar valor menor do que o real pelo pedido.
+
+**Condições:** o backend não revalida o valor do pedido no momento do pagamento, confiando no valor enviado pelo cliente.
+
+**Fluxo de abuso:**
+1. O atacante monta um pedido normalmente pelo app.
+2. Antes de enviar a requisição de pagamento, intercepta e altera o valor total via proxy/ferramenta de interceptação.
+3. O backend aceita o valor alterado sem revalidar contra o cadastro de preços do restaurante.
+4. O pedido é processado e entregue com valor pago muito abaixo do real.
+
+**Impacto:** prejuízo financeiro direto ao restaurante e à plataforma; se replicado em escala, pode gerar perdas significativas.
+
+**Categorias STRIDE relacionadas:** Tampering, Elevation of Privilege.
+
+---
+
+### CA03 — Avaliações falsas para manipular reputação
+**Ator:** restaurante concorrente ou o próprio dono do estabelecimento usando contas falsas.
+
+**Objetivo:** aumentar artificialmente a nota do próprio estabelecimento ou reduzir a de concorrentes.
+
+**Condições:** o sistema permite avaliações sem exigir vínculo comprovado com um pedido real, ou permite múltiplas contas facilmente.
+
+**Fluxo de abuso:**
+1. O atacante cria múltiplas contas falsas ou usa contas de terceiros.
+2. Realiza pedidos fictícios de baixo valor (ou usa contas sem pedido real, se o sistema permitir).
+3. Publica avaliações positivas para o próprio negócio ou negativas para concorrentes.
+4. O sistema exibe as avaliações manipuladas normalmente aos demais usuários.
+
+**Impacto:** distorção da confiança dos clientes, prejuízo à concorrência leal, possível perda de clientes por informações falsas.
+
+**Categorias STRIDE relacionadas:** Repudiation, Information Disclosure (uso de dados de terceiros), Spoofing.
+
+---
+
+### CA04 — Exposição da localização do cliente
+**Ator:** atacante externo explorando falha de autorização em API.
+
+**Objetivo:** rastrear a localização de um cliente específico durante a entrega.
+
+**Condições:** a API de rastreamento de entrega não verifica corretamente se quem consulta o endpoint tem permissão sobre aquele pedido específico.
+
+**Fluxo de abuso:**
+1. O atacante identifica o endpoint da API responsável por exibir a localização da entrega em andamento.
+2. Ao manipular o identificador do pedido na requisição (ex.: incrementar o ID), consegue acessar dados de rastreamento de outros pedidos que não são seus.
+3. O atacante obtém a localização em tempo real de clientes que não conhece.
+
+**Impacto:** risco à segurança física dos clientes, violação grave de privacidade, possível uso para crimes como abordagens ou assaltos.
+
+**Categorias STRIDE relacionadas:** Information Disclosure, Elevation of Privilege.
+
+---
+
+### CA05 — Falso reembolso por negação de recebimento
+**Ator:** cliente mal-intencionado (usuário legítimo abusando do sistema).
+
+**Objetivo:** obter reembolso ou novo pedido gratuito alegando falsamente não ter recebido a entrega.
+
+**Condições:** o processo de confirmação de entrega não possui evidências suficientes (ex.: apenas toque em "confirmar recebimento", sem foto ou assinatura).
+
+**Fluxo de abuso:**
+1. O cliente recebe o pedido normalmente.
+2. Mesmo assim, contata o suporte alegando não ter recebido nada.
+3. Como não há evidência forte de entrega (foto, geolocalização no momento da entrega), a plataforma opta por reembolsar para evitar desgaste.
+4. O cliente repete o comportamento em pedidos futuros.
+
+**Impacto:** prejuízo financeiro recorrente para a plataforma e para os restaurantes/entregadores, incentivo a fraudes similares por outros usuários.
+
+**Categorias STRIDE relacionadas:** Repudiation.
+
+---
