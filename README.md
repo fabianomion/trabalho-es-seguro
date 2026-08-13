@@ -430,3 +430,35 @@ Essa ordem prioriza primeiro os riscos críticos e as causas raiz compartilhadas
 | R01 | Falha de autenticação e gerenciamento de sessão | OWASP Top 10 (A07:2021 – Identification and Authentication Failures) | Permite que um atacante com credenciais vazadas assuma o controle da conta de outro usuário |
 | R07 / R08 | Referência insegura direta a objeto (IDOR) | CWE-639 (Authorization Bypass Through User-Controlled Key) | Permite acessar dados pessoais ou de localização de outros usuários apenas manipulando um identificador na requisição |
 | R11 | Controle de acesso quebrado (Broken Access Control) | OWASP Top 10 (A01:2021 – Broken Access Control) | Permite que um usuário comum execute funções administrativas caso a verificação de papel exista apenas na interface |
+
+## 18.3 Diagrama da arquitetura segura
+
+```mermaid
+flowchart TD
+    U1[Cliente] -->|HTTPS| GW[API Gateway / Rate Limiting]
+    U2[Entregador] -->|HTTPS| GW
+    U3[Restaurante] -->|HTTPS| GW
+    U4[Administrador] -->|HTTPS + MFA| GW
+
+    GW --> AUTH[Serviço de Autenticação<br/>login + MFA + tokens]
+    GW --> AUTHZ[Camada de Autorização<br/>verifica dono do recurso e papel/role]
+    AUTHZ --> API[Backend / API de Pedidos, Pagamentos e Rastreamento]
+
+    API --> DB[(Banco de Dados<br/>dados pessoais, pedidos, pagamentos)]
+    API --> PAY[Gateway de Pagamento externo]
+    API --> GEO[Serviço de Geolocalização]
+    API --> LOG[Logs e Monitoramento<br/>auditoria + alertas]
+
+    LOG --> SOC[Equipe de Segurança / Resposta a Incidentes]
+```
+
+**Posição dos principais controles:** rate limiting e MFA na borda (API Gateway/Autenticação), verificação de autorização por recurso e por papel antes de qualquer acesso ao backend, e logs de auditoria centralizados alimentando o processo de detecção e resposta.
+
+## 18.4 Decisões de arquitetura
+
+| Decisão | Risco tratado | Justificativa |
+|---|---|---|
+| Validar autorização (dono do recurso e papel) sempre no servidor, nunca apenas na interface | R07, R08, R11 | Ocultar botões ou telas no aplicativo não impede que um atacante envie requisições diretamente à API; a validação real precisa ocorrer no backend |
+| Introduzir uma camada de API Gateway com rate limiting antes do backend de pedidos | R09 | Centraliza o controle de tráfego excessivo em um único ponto, evitando que cada serviço precise implementar sua própria proteção contra sobrecarga |
+| Recalcular o valor do pedido inteiramente no servidor a partir do cardápio cadastrado, descartando qualquer valor total enviado pelo cliente | R03 | Impede que o cliente manipule o preço final do pedido, pois o servidor nunca confia em valores financeiros vindos do lado do cliente |
+
