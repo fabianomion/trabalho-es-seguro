@@ -534,3 +534,18 @@ função autenticar(email, senha, codigo_mfa):
 
 **Forma de realização:** implementação descrita em pseudocódigo, adequada para o estágio atual do projeto (sistema não implementado por completo), podendo ser convertida em código real nas próximas iterações.
 
+# Etapa 5 — Verificação de Vulnerabilidades
+
+## Ambiente proposto
+
+- **Sistema/ambiente a ser testado:** OWASP Juice Shop (aplicação deliberadamente vulnerável para fins educacionais), utilizada como substituto do DeliveryGo, já que o sistema do grupo ainda não está implementado.
+- **Ferramenta:** OWASP ZAP (Zed Attack Proxy), em modo de varredura automatizada (*Automated Scan*) contra a instância local do Juice Shop.
+- **Configuração básica do teste:** Juice Shop executado localmente (ex.: via Docker, na porta padrão), ZAP configurado para interceptar o tráfego e executar uma varredura ativa sobre a URL local da aplicação.
+
+## Modelo de registro dos achados
+
+| ID | Alerta ou achado | Evidência | Possível impacto | Relação com OWASP/CWE | Correção proposta |
+|---|---|---|---|---|---|
+| A01 | *(ex.: ausência de cabeçalho `Content-Security-Policy`)* | *(print/relatório do ZAP a ser anexado)* | Facilita ataques de Cross-Site Scripting (XSS), permitindo execução de scripts maliciosos no navegador da vítima | OWASP A03:2021 – Injection / CWE-79 | Configurar cabeçalhos de segurança (CSP) no servidor web para restringir origens de scripts permitidas |
+| A02 | *(ex.: cookie de sessão sem a flag `HttpOnly`/`Secure`)* | *(print/relatório do ZAP a ser anexado)* | Permite que o cookie de sessão seja acessado via JavaScript malicioso ou transmitido em conexão não criptografada | OWASP A05:2021 – Security Misconfiguration / CWE-614, CWE-1004 | Definir os cookies de sessão com as flags `HttpOnly`, `Secure` e `SameSite` |
+| A03 | *(ex.: SQL Injection identificado em campo de busca)* | *(print/relatório do ZAP a ser anexado)* | Permite manipulação ou extração indevida de dados diretamente do banco de dados | OWASP A03:2021 – Injection / CWE-89 | Utilizar consultas parametrizadas (prepared statements) em todos os pontos de entrada de dados |
