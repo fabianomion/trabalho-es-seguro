@@ -572,3 +572,23 @@ função autenticar(email, senha, codigo_mfa):
 | R09 — Indisponibilidade por sobrecarga | Métricas de requisições da API | Volume de requisições de um mesmo IP/conta acima de um limite definido (ex.: 100 req/min) | Ativar rate limiting automático para a origem identificada e notificar a equipe de infraestrutura |
 
 **Após o alerta:** o evento deve ser registrado com contexto suficiente (usuário, IP, horário, ação), a equipe responsável deve ser notificada automaticamente, e uma triagem inicial deve decidir entre resposta automatizada (ex.: bloqueio temporário) e investigação manual, conforme a gravidade do alerta.
+---
+
+# Etapa 7 — DevSecOps
+
+## 31. Pipeline DevSecOps proposto
+
+| Momento | Atividade de segurança | Evidência produzida | Condição para continuar |
+|---|---|---|---|
+| Planejamento | Modelagem STRIDE, casos de abuso e análise de riscos (Etapas 1 e 2) | Tabelas de ameaças, casos de abuso e registro de riscos | Riscos prioritários identificados e estratégias de tratamento definidas |
+| Arquitetura | Requisitos de segurança e decisões de arquitetura (Etapa 3) | Diagrama da arquitetura segura e tabela de decisões | Requisitos rastreáveis aos riscos prioritários |
+| Código | Práticas seguras e testes definidos antes da implementação (Etapa 4) | Pseudocódigo/código e testes de segurança | Testes de segurança aprovados |
+| Verificação | Varredura com OWASP ZAP (Etapa 5) | Relatório de alertas e evidências salvas em `evidencias/etapa-5/` | Achados críticos e altos analisados e com correção proposta |
+| Operação | Logs e regras de detecção (Etapa 6) | Roteiro de monitoramento e regras de alerta | Eventos essenciais mapeados e regras de alerta definidas |
+
+**Condições que impediriam a continuidade do pipeline:**
+1. Teste de segurança automatizado reprovado (ex.: TS02 ou TS04 falhando) antes do deploy;
+2. Vulnerabilidade crítica ou alta identificada pelo ZAP sem análise e correção proposta;
+3. Segredo (credencial, chave de API) encontrado versionado no repositório;
+4. Dependência de terceiros com vulnerabilidade conhecida e sem correção disponível não avaliada;
+5. Falha em teste de controle de acesso (ex.: usuário comum conseguindo acessar rota administrativa).
