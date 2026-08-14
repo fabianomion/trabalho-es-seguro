@@ -549,3 +549,26 @@ função autenticar(email, senha, codigo_mfa):
 | A01 | *(ex.: ausência de cabeçalho `Content-Security-Policy`)* | *(print/relatório do ZAP a ser anexado)* | Facilita ataques de Cross-Site Scripting (XSS), permitindo execução de scripts maliciosos no navegador da vítima | OWASP A03:2021 – Injection / CWE-79 | Configurar cabeçalhos de segurança (CSP) no servidor web para restringir origens de scripts permitidas |
 | A02 | *(ex.: cookie de sessão sem a flag `HttpOnly`/`Secure`)* | *(print/relatório do ZAP a ser anexado)* | Permite que o cookie de sessão seja acessado via JavaScript malicioso ou transmitido em conexão não criptografada | OWASP A05:2021 – Security Misconfiguration / CWE-614, CWE-1004 | Definir os cookies de sessão com as flags `HttpOnly`, `Secure` e `SameSite` |
 | A03 | *(ex.: SQL Injection identificado em campo de busca)* | *(print/relatório do ZAP a ser anexado)* | Permite manipulação ou extração indevida de dados diretamente do banco de dados | OWASP A03:2021 – Injection / CWE-89 | Utilizar consultas parametrizadas (prepared statements) em todos os pontos de entrada de dados |
+
+# Etapa 6 — Monitoramento e Detecção de Intrusões
+
+**O que é detecção de intrusões:** é o processo de observar eventos do sistema (acessos, requisições, erros) em busca de padrões que indiquem uso indevido, tentativa de ataque ou comportamento anômalo, permitindo que a equipe responda antes que o dano se agrave.
+
+**Prevenir vs. detectar:** prevenir significa implementar controles que impedem que um ataque tenha sucesso (ex.: autorização, MFA, validação de entrada); detectar significa identificar que uma tentativa de ataque está ocorrendo ou ocorreu, mesmo quando a prevenção falha ou não existe para aquele cenário específico — as duas abordagens são complementares.
+
+**Eventos que deveriam ser registrados:**
+- Tentativas de login (sucesso e falha), incluindo IP e dispositivo;
+- Acessos a recursos sensíveis (dados pessoais, pagamentos, rotas administrativas);
+- Alterações em pedidos, reembolsos e cadastros de entregadores;
+- Erros de autorização (HTTP 403) e de autenticação (HTTP 401);
+- Volume de requisições por conta/IP em determinado intervalo de tempo.
+
+**Regras de detecção:**
+
+| Risco observado | Fonte de dados | Condição de alerta | Resposta inicial |
+|---|---|---|---|
+| R01 — Uso indevido de conta | Logs de autenticação | Mais de 5 tentativas malsucedidas de login para a mesma conta em 10 minutos | Bloquear temporariamente novas tentativas para a conta e alertar a equipe de segurança |
+| R07/R08 — Acesso indevido a dados de terceiros | Logs de autorização da API | Mais de 10 respostas HTTP 403 (acesso negado) originadas do mesmo usuário/IP em 5 minutos | Suspender temporariamente o token/sessão do usuário e registrar incidente para análise manual |
+| R09 — Indisponibilidade por sobrecarga | Métricas de requisições da API | Volume de requisições de um mesmo IP/conta acima de um limite definido (ex.: 100 req/min) | Ativar rate limiting automático para a origem identificada e notificar a equipe de infraestrutura |
+
+**Após o alerta:** o evento deve ser registrado com contexto suficiente (usuário, IP, horário, ação), a equipe responsável deve ser notificada automaticamente, e uma triagem inicial deve decidir entre resposta automatizada (ex.: bloqueio temporário) e investigação manual, conforme a gravidade do alerta.
