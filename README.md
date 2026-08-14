@@ -583,7 +583,7 @@ função autenticar(email, senha, codigo_mfa):
 | Planejamento | Modelagem STRIDE, casos de abuso e análise de riscos (Etapas 1 e 2) | Tabelas de ameaças, casos de abuso e registro de riscos | Riscos prioritários identificados e estratégias de tratamento definidas |
 | Arquitetura | Requisitos de segurança e decisões de arquitetura (Etapa 3) | Diagrama da arquitetura segura e tabela de decisões | Requisitos rastreáveis aos riscos prioritários |
 | Código | Práticas seguras e testes definidos antes da implementação (Etapa 4) | Pseudocódigo/código e testes de segurança | Testes de segurança aprovados |
-| Verificação | Varredura com OWASP ZAP (Etapa 5) | Relatório de alertas e evidências salvas em `evidencias/etapa-5/` | Achados críticos e altos analisados e com correção proposta |
+| Verificação | Varredura com OWASP ZAP (Etapa 5) | Relatório de alertas e evidências em `etapa-5` | Achados críticos e altos analisados e com correção proposta |
 | Operação | Logs e regras de detecção (Etapa 6) | Roteiro de monitoramento e regras de alerta | Eventos essenciais mapeados e regras de alerta definidas |
 
 **Condições que impediriam a continuidade do pipeline:**
